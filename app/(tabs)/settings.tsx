@@ -29,7 +29,7 @@ const Settings: React.FC = () => {
 
     try {
       setResultMessage('Loading...');
-      const response = await axios.post('http://192.168.1.84:8081/api/save', {
+      const response = await axios.post('https://billy-ver-1.0.onrender.com/api/save', {
         service: currentForm,
         username,
         password,
