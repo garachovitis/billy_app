@@ -36,7 +36,7 @@ const BillingInfoScreen: React.FC = () => {
     const [currentMonthExpenses, setCurrentMonthExpenses] = useState<number>(0);
 
     useEffect(() => {
-        fetch('https://billy-ver-1.0.onrender.com/billing-info')
+        fetch('http://localhost:8082/billing-info')
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
