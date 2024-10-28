@@ -8,6 +8,7 @@ import HomeIcon from '@/assets/images/Home.png';
 import CalendarIcon from '@/assets/images/Schedule.png';
 import SettingsIcon from '@/assets/images/Settings.png';
 import CategoriesIcon from '@/assets/images/Categories.png'; // Import the new icon
+import NewAccountIcon from '@/assets/images/plus.png'; // Import the new icon
 
 // Custom component για την εμφάνιση των εικόνων
 function TabBarIcon({ source, color }: { source: any; color?: string }) {

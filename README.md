@@ -12,8 +12,8 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 2. Start the app
 
-   ```
-    npm run (device) & node index.js
+   ```bash
+    npx expo start
    ```
 
 In the output, you'll find options to open the app in a

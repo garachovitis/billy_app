@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import * as FileSystem from 'expo-file-system';
-import * as Linking from 'expo-linking';
 import axios from 'axios';
 
 const NewAccount: React.FC = () => {
@@ -10,37 +8,17 @@ const NewAccount: React.FC = () => {
   const [password, setPassword] = useState<string>('');
   const [resultMessage, setResultMessage] = useState<string | null>(null);
   const [isSubmitDisabled, setIsSubmitDisabled] = useState<boolean>(true);
-  const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
 
   useEffect(() => {
-    setIsSubmitDisabled(!(username && password && termsAccepted));
-  }, [username, password, termsAccepted]);
+    // Ελέγχει αν υπάρχουν δεδομένα σε όνομα και κωδικό και ενεργοποιεί το κουμπί
+    setIsSubmitDisabled(!(username && password));
+  }, [username, password]);
 
   const showForm = (service: string) => {
     setCurrentForm(service);
     setUsername('');
     setPassword('');
     setResultMessage(null);
-  };
-
-  const openTermsAndConditions = async () => {
-    const fileUri = `${FileSystem.documentDirectory}TermsAndConditions.pdf`;
-
-    try {
-      // Ελέγχουμε αν το αρχείο υπάρχει τοπικά, αλλιώς το κατεβάζουμε
-      const fileInfo = await FileSystem.getInfoAsync(fileUri);
-      if (!fileInfo.exists) {
-        await FileSystem.copyAsync({
-          from: require('./TermsAndConditions.pdf'), // Ανοίγουμε από τον τοπικό φάκελο
-          to: fileUri,
-        });
-      }
-
-      // Άνοιγμα του PDF με το Linking API
-      await Linking.openURL(fileUri);
-    } catch (error) {
-      Alert.alert("Error", "Could not open Terms and Conditions.");
-    }
   };
 
   const submitForm = async () => {
@@ -51,7 +29,7 @@ const NewAccount: React.FC = () => {
 
     try {
       setResultMessage('Loading...');
-      const response = await axios.post('http://192.168.1.84:8082/api/save', {
+      const response = await axios.post('http://192.168.1.84:8081/api/save', {
         service: currentForm,
         username,
         password,
@@ -65,10 +43,10 @@ const NewAccount: React.FC = () => {
     } catch (error) {
       setResultMessage(`Error: ${(error as Error).message}`);
     } finally {
+      // Καθαρίζει τη φόρμα
       setUsername('');
       setPassword('');
-      setIsSubmitDisabled(true);
-      setTermsAccepted(false);
+      setIsSubmitDisabled(true); // Απενεργοποιεί ξανά το κουμπί
     }
   };
 
@@ -103,17 +81,6 @@ const NewAccount: React.FC = () => {
             value={password}
             onChangeText={setPassword}
           />
-
-          {/* Checkbox για Αποδοχή Όρων */}
-          <View style={styles.checkboxContainer}>
-            <TouchableOpacity onPress={() => setTermsAccepted(!termsAccepted)} style={styles.checkbox}>
-              {termsAccepted && <Text style={styles.checkmark}>✔</Text>}
-            </TouchableOpacity>
-            <TouchableOpacity onPress={openTermsAndConditions}>
-              <Text style={styles.termsText}>Αποδοχή όρων χρήσης</Text>
-            </TouchableOpacity>
-          </View>
-
           <TouchableOpacity
             style={[styles.submitButton, isSubmitDisabled && styles.disabledButton]}
             onPress={submitForm}
@@ -145,10 +112,6 @@ const styles = StyleSheet.create({
   submitButton: { marginTop: 20, alignSelf: 'center', alignItems: 'center', width: 200, padding: 15, backgroundColor: '#37B7C3', borderRadius: 25 },
   disabledButton: { backgroundColor: '#cccccc' },
   submitButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 18 },
-  checkboxContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
-  checkbox: { width: 20, height: 20, borderWidth: 1, borderColor: '#333', alignItems: 'center', justifyContent: 'center', marginRight: 10, borderRadius: 10 },
-  checkmark: { fontSize: 14, color: '#007bff' },
-  termsText: { color: '#007bff', textDecorationLine: 'underline' },
 });
 
 export default NewAccount;
