@@ -267,5 +267,5 @@ app.get('/billing-info', (req, res) => {
 
 const PORT = 8082;
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server running on https://billy-pays.onrender.com`);
 });
