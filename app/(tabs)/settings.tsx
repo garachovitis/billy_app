@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'reac
 import * as FileSystem from 'expo-file-system';
 import * as Linking from 'expo-linking';
 import axios from 'axios';
+import RNRestart from 'react-native-restart'; // Εισαγωγή του react-native-restart
 
 const NewAccount: React.FC = () => {
   const [currentForm, setCurrentForm] = useState<string | null>(null);
@@ -27,16 +28,13 @@ const NewAccount: React.FC = () => {
     const fileUri = `${FileSystem.documentDirectory}TermsAndConditions.pdf`;
 
     try {
-      // Ελέγχουμε αν το αρχείο υπάρχει τοπικά, αλλιώς το κατεβάζουμε
       const fileInfo = await FileSystem.getInfoAsync(fileUri);
       if (!fileInfo.exists) {
         await FileSystem.copyAsync({
-          from: require('./TermsAndConditions.pdf'), // Ανοίγουμε από τον τοπικό φάκελο
+          from: require('./TermsAndConditions.pdf'),
           to: fileUri,
         });
       }
-
-      // Άνοιγμα του PDF με το Linking API
       await Linking.openURL(fileUri);
     } catch (error) {
       Alert.alert("Error", "Could not open Terms and Conditions.");
@@ -51,7 +49,7 @@ const NewAccount: React.FC = () => {
 
     try {
       setResultMessage('Loading...');
-      const response = await axios.post('http://192.168.1.84:8082/api/save', {
+      const response = await axios.post('http://localhost:8082/api/save', {
         service: currentForm,
         username,
         password,
@@ -59,6 +57,10 @@ const NewAccount: React.FC = () => {
 
       if (response.data.status === 'success') {
         setResultMessage(`Data saved successfully for ${currentForm}`);
+        // Αναμονή για λίγο και μετά επανεκκίνηση της εφαρμογής
+        setTimeout(() => {
+          RNRestart.Restart();
+        }, 1000);
       } else {
         setResultMessage(`Error: ${response.data.message}`);
       }
@@ -104,7 +106,6 @@ const NewAccount: React.FC = () => {
             onChangeText={setPassword}
           />
 
-          {/* Checkbox για Αποδοχή Όρων */}
           <View style={styles.checkboxContainer}>
             <TouchableOpacity onPress={() => setTermsAccepted(!termsAccepted)} style={styles.checkbox}>
               {termsAccepted && <Text style={styles.checkmark}>✔</Text>}
